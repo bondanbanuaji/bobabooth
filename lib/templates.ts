@@ -10,31 +10,35 @@ export interface PhotoboothTemplate {
 
 export const defaultTemplates: PhotoboothTemplate[] = [
   {
-    id: "korean-clean",
-    name: "Korean Minimal",
+    id: "classic-boba",
+    name: "Classic Beige",
     layout: "strip-4",
-    bgColor: "#ffffff",
-    textColor: "#a1a1aa", // zinc-400
+    bgColor: "#eae3d8", // Light beige
+    textColor: "#5a4031", // Deep brown text
+    fontFam: "Fredoka, sans-serif"
   },
   {
-    id: "dark-aesthetic",
-    name: "Midnight Vibes",
+    id: "dark-roast",
+    name: "Dark Roast",
     layout: "strip-4",
-    bgColor: "#18181b", // zinc-900
-    textColor: "#d4d4d8",
+    bgColor: "#292524", // Stone 800
+    textColor: "#c29a77", // Caramel text
+    fontFam: "Outfit, sans-serif"
   },
   {
     id: "classic-polaroid",
     name: "Classic Polaroid",
     layout: "polaroid",
-    bgColor: "#f8fafc",
-    textColor: "#1e293b",
+    bgColor: "#faf8f5", // Warm milk cream
+    textColor: "#2c2522", // Espresso black
+    fontFam: "Fredoka, sans-serif"
   },
   {
     id: "party-grid",
-    name: "Party Grid",
+    name: "Matcha Grid",
     layout: "grid-2x2",
-    bgColor: "#fce7f3", // pink-100
-    textColor: "#db2777",
+    bgColor: "#718355", // Matcha green (unisex)
+    textColor: "#ffffff", // White text
+    fontFam: "Outfit, sans-serif"
   }
 ];

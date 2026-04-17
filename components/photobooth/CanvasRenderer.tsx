@@ -25,6 +25,7 @@ export function CanvasRenderer({ images, template }: CanvasRendererProps) {
     const PADDING = 40;
     const HEADER_SPACE = 60;
     const FOOTER_SPACE = 120;
+    const RADIUS = 24; // Rounded corners for photos
 
     let canvasWidth = 0;
     let canvasHeight = 0;
@@ -37,7 +38,6 @@ export function CanvasRenderer({ images, template }: CanvasRendererProps) {
       canvasWidth = (IMAGE_WIDTH * 2) + (PADDING * 3);
       canvasHeight = (IMAGE_HEIGHT * 2) + (PADDING * 3) + HEADER_SPACE + FOOTER_SPACE;
     } else if (template.layout === 'polaroid') {
-       // Just one big image
        canvasWidth = IMAGE_WIDTH + (PADDING * 2);
        canvasHeight = IMAGE_HEIGHT + PADDING + FOOTER_SPACE;
     }
@@ -45,14 +45,16 @@ export function CanvasRenderer({ images, template }: CanvasRendererProps) {
     canvas.width = canvasWidth;
     canvas.height = canvasHeight;
 
+    // Wait until fonts are loaded ideally, but we will proceed
     // Draw Background
     ctx.fillStyle = template.bgColor;
     ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
     // Draw Text
     ctx.fillStyle = template.textColor || '#000000';
-    ctx.font = `bold 48px ${template.fontFam || 'sans-serif'}`;
+    ctx.font = `bold 64px ${template.fontFam || 'sans-serif'}`;
     ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
     
     const maxImages = template.layout === 'strip-4' ? 4 : template.layout === 'grid-2x2' ? 4 : 1;
     
@@ -74,18 +76,50 @@ export function CanvasRenderer({ images, template }: CanvasRendererProps) {
             y = PADDING;
         }
 
-        // Draw shadow or border if needed
-        ctx.shadowColor = 'rgba(0,0,0,0.1)';
-        ctx.shadowBlur = 20;
-        ctx.fillRect(x, y, IMAGE_WIDTH, IMAGE_HEIGHT); // optional underlay
+        // Draw shadow underlay
+        ctx.save();
+        ctx.shadowColor = 'rgba(0,0,0,0.15)';
+        ctx.shadowBlur = 30;
+        ctx.shadowOffsetY = 10;
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        if (ctx.roundRect) {
+            ctx.roundRect(x, y, IMAGE_WIDTH, IMAGE_HEIGHT, RADIUS);
+        } else {
+            ctx.rect(x, y, IMAGE_WIDTH, IMAGE_HEIGHT); // fallback
+        }
+        ctx.fill();
+        ctx.restore();
 
-        // Draw image
-        ctx.shadowBlur = 0; // reset
-        ctx.drawImage(img, x, y, IMAGE_WIDTH, IMAGE_HEIGHT);
+        // Calculate object-fit: cover
+        const canvasRatio = IMAGE_WIDTH / IMAGE_HEIGHT;
+        const imgRatio = img.width / img.height;
+        let sx = 0, sy = 0, sWidth = img.width, sHeight = img.height;
+        
+        if (imgRatio > canvasRatio) {
+           sWidth = img.height * canvasRatio;
+           sx = (img.width - sWidth) / 2;
+        } else {
+           sHeight = img.width / canvasRatio;
+           sy = (img.height - sHeight) / 2;
+        }
+
+        // Draw image with clipping
+        ctx.save();
+        ctx.beginPath();
+        if (ctx.roundRect) {
+            ctx.roundRect(x, y, IMAGE_WIDTH, IMAGE_HEIGHT, RADIUS);
+        } else {
+            ctx.rect(x, y, IMAGE_WIDTH, IMAGE_HEIGHT);
+        }
+        ctx.clip();
+        ctx.drawImage(img, sx, sy, sWidth, sHeight, x, y, IMAGE_WIDTH, IMAGE_HEIGHT);
+        ctx.restore();
       });
 
       // Draw footer text after images
-      ctx.fillText("BobaBooth", canvasWidth / 2, canvasHeight - (FOOTER_SPACE / 2));
+      const footerY = canvasHeight - (FOOTER_SPACE / 2);
+      ctx.fillText("BobaBooth", canvasWidth / 2, footerY);
 
       // Save output
       setDataUrl(canvas.toDataURL('image/png'));
@@ -102,17 +136,18 @@ export function CanvasRenderer({ images, template }: CanvasRendererProps) {
   };
 
   return (
-    <div className="flex flex-col items-center gap-4">
+    <div className="flex flex-col items-center gap-4 w-full h-full max-h-[70vh] overflow-y-auto custom-scrollbar p-4">
        {/* Visual Canvas (Hidden or scaled down for preview) */}
        <canvas ref={canvasRef} className="hidden" />
        
        {dataUrl ? (
-          <div className="rounded-xl overflow-hidden shadow-[0_20px_50px_rgba(8,_112,_184,_0.7)] group">
-              <img src={dataUrl} alt="Photobooth output" className="max-w-[400px] w-full h-auto" />
+          <div className="rounded-[2rem] overflow-hidden shadow-[0_30px_60px_rgba(244,114,182,0.2)] group border-4 border-white/50 dark:border-white/10 w-fit mx-auto transition-transform hover:scale-[1.02] duration-500">
+              <img src={dataUrl} alt="Photobooth output" className="max-w-[320px] sm:max-w-[400px] w-full h-auto object-contain" />
           </div>
        ) : (
-          <div className="w-[400px] h-[600px] flex items-center justify-center bg-zinc-900 rounded-xl animate-pulse">
-             <span className="text-zinc-500">Processing...</span>
+          <div className="w-[320px] sm:w-[400px] h-[600px] flex flex-col items-center justify-center bg-secondary/50 rounded-[2rem] border-4 border-dashed border-primary/20 animate-pulse">
+             <span className="loading loading-spinner text-primary loading-lg mb-4"></span>
+             <span className="text-primary font-bold">Processing your masterpiece...</span>
           </div>
        )}
     </div>

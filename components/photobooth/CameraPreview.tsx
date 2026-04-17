@@ -57,18 +57,18 @@ export function CameraPreview({ onCapture, isActive }: CameraPreviewProps) {
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center p-8 bg-black/50 text-white rounded-xl backdrop-blur-md border border-white/10">
-        <AlertCircle className="w-12 h-12 text-red-400 mb-4" />
-        <p className="text-center">Camera Access Denied or Unavailable</p>
-        <p className="text-sm text-zinc-400 mt-2">{error}</p>
+      <div className="flex flex-col items-center justify-center p-8 bg-destructive/10 text-destructive rounded-[2rem] border-2 border-destructive shadow-lg w-full max-w-2xl mx-auto aspect-[4/3] sm:aspect-video">
+        <AlertCircle className="w-12 h-12 mb-4 animate-bounce" />
+        <p className="text-center font-bold text-lg">Camera Access Denied or Unavailable</p>
+        <p className="text-sm font-medium mt-2">{error}</p>
       </div>
     );
   }
 
   return (
-    <div className="relative w-full max-w-2xl mx-auto overflow-hidden rounded-2xl bg-black border border-white/10 shadow-2xl group">
+    <div className="relative w-full max-w-3xl mx-auto overflow-hidden rounded-[2rem] bg-zinc-900 border-4 border-primary/20 shadow-[0_0_40px_rgba(244,114,182,0.15)] group aspect-[4/3] sm:aspect-video">
       {!stream && (
-        <div className="absolute inset-0 flex items-center justify-center z-10">
+        <div className="absolute inset-0 flex items-center justify-center z-10 bg-zinc-900/50 backdrop-blur-sm">
            <span className="loading loading-spinner text-primary loading-lg"></span>
         </div>
       )}
@@ -79,7 +79,7 @@ export function CameraPreview({ onCapture, isActive }: CameraPreviewProps) {
         autoPlay
         playsInline
         muted
-        className="w-full h-full object-cover origin-center -scale-x-100" // CSS flip
+        className="w-full h-full absolute inset-0 object-cover origin-center -scale-x-100" // CSS flip and cover
       />
 
       {/* Overlays */}
@@ -92,7 +92,7 @@ export function CameraPreview({ onCapture, isActive }: CameraPreviewProps) {
             exit={{ scale: 2, opacity: 0 }}
             className="absolute inset-0 flex items-center justify-center pointer-events-none z-20"
           >
-            <span className="text-9xl font-bold text-white drop-shadow-2xl">{countdown}</span>
+            <span className="text-9xl font-black text-white drop-shadow-[0_0_20px_rgba(244,114,182,1)]">{countdown}</span>
           </motion.div>
         )}
       </AnimatePresence>
@@ -110,15 +110,14 @@ export function CameraPreview({ onCapture, isActive }: CameraPreviewProps) {
       </AnimatePresence>
 
       {/* Controls */}
-      <div className="absolute bottom-6 left-0 right-0 flex justify-center z-40">
+      <div className="absolute bottom-6 left-0 right-0 flex justify-center z-40 transition-transform duration-300 group-hover:-translate-y-2">
         <Button 
-          size="lg" 
           onClick={handleCapture}
           disabled={countdown !== null || !stream}
-          className="rounded-full w-20 h-20 bg-white/20 hover:bg-white/40 backdrop-blur-md border-2 border-white text-white p-0"
+          className="rounded-full w-20 h-20 bg-background/50 backdrop-blur-md hover:bg-background border-4 border-primary/50 hover:border-primary text-primary p-0 shadow-2xl transition-all hover:scale-110 active:scale-95 disabled:opacity-50 disabled:hover:scale-100"
         >
-           <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-lg transition-transform active:scale-95 group">
-               <Camera className="w-8 h-8 text-black group-hover:scale-110 transition-transform" />
+           <div className="w-14 h-14 bg-primary rounded-full flex items-center justify-center shadow-inner group">
+               <Camera className="w-7 h-7 text-primary-foreground group-hover:scale-110 transition-transform" />
            </div>
         </Button>
       </div>
