@@ -16,7 +16,8 @@ export function BoothEngine() {
   const [images, setImages] = useState<string[]>([]);
   const [isUploading, setIsUploading] = useState(false);
 
-  const maxImages = template.layout === 'strip-4' ? 4 : template.layout === 'grid-2x2' ? 4 : 1;
+  const currentTemplate = defaultTemplates.find(t => t.id === template.id) || template;
+  const maxImages = currentTemplate.boxes?.length || 4;
 
   const handleCapture = (base64: string) => {
     const newImages = [...images, base64];
@@ -84,8 +85,8 @@ export function BoothEngine() {
       
       {/* Header */}
       <div className="w-full max-w-5xl flex flex-col sm:flex-row justify-between items-center mb-6 sm:mb-8 z-20 bg-background/80 dark:bg-background/80 backdrop-blur-3xl p-4 sm:p-5 rounded-3xl border border-primary/20 shadow-xl gap-4">
-         <h2 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent-foreground flex items-center gap-2">
-            <Sparkles className="w-6 h-6 text-primary" /> BobaBooth
+         <h2 className="text-2xl font-bold text-primary flex items-center gap-2">
+            <Camera className="w-6 h-6 text-primary" /> BobaBooth
          </h2>
          <div className="flex gap-2 sm:gap-3 bg-secondary/50 p-1.5 rounded-full overflow-x-auto w-full sm:w-auto">
             <div className={`px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-colors ${step === 'template' ? 'bg-primary text-primary-foreground shadow-md' : 'text-muted-foreground'}`}>1. Template</div>
@@ -110,8 +111,8 @@ export function BoothEngine() {
                                 onClick={() => setTemplate(t)}
                                 className={`cursor-pointer rounded-2xl p-6 border-2 transition-all hover:-translate-y-1 hover:shadow-xl ${template.id === t.id ? 'border-primary bg-primary/5 shadow-md shadow-primary/20' : 'border-border bg-card'}`}
                               >
-                                 <div className="w-24 h-32 mx-auto mb-4 border border-black/10 dark:border-white/10 rounded-lg flex items-center justify-center shadow-inner" style={{ backgroundColor: t.bgColor }}>
-                                    <span className="text-xs font-bold px-2 py-1 bg-white/50 backdrop-blur rounded-md" style={{ color: t.textColor }}>Preview</span>
+                                 <div className="w-24 h-36 mx-auto mb-4 border border-black/10 dark:border-white/10 rounded-lg flex items-center justify-center shadow-inner overflow-hidden relative" style={{ backgroundColor: t.bgColor }}>
+                                    <img src={t.frameSrc} alt="Frame" className="absolute inset-0 w-full h-full object-cover z-10" />
                                  </div>
                                  <p className="font-heading font-semibold text-lg text-foreground">{t.name}</p>
                                  <p className="text-sm text-muted-foreground mt-1 capitalize font-medium">{t.layout.replace('-', ' ')}</p>
@@ -138,7 +139,7 @@ export function BoothEngine() {
 
                 {step === 'preview' && (
                     <div className="w-full flex flex-col items-center animate-in fade-in zoom-in duration-500">
-                        <CanvasRenderer images={images} template={template} />
+                        <CanvasRenderer images={images} template={currentTemplate} />
                     </div>
                 )}
             </div>

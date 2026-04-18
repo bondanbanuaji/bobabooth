@@ -12,12 +12,12 @@ export default function Home() {
         
         {/* Badge */}
         <div className="inline-flex items-center justify-center px-4 py-2 bg-primary/10 dark:bg-primary/20 text-primary dark:text-primary-foreground rounded-full mb-8 shadow-sm">
-            <Sparkles className="w-5 h-5 mr-2" />
+            <Camera className="w-5 h-5 mr-2" />
             <span className="text-xs sm:text-sm font-bold tracking-wider uppercase">Premium Browser Photobooth</span>
         </div>
 
         {/* Heading */}
-        <h1 className="text-5xl sm:text-6xl md:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-br from-primary via-accent-foreground to-primary mb-6 drop-shadow-sm leading-tight pb-2">
+        <h1 className="text-5xl sm:text-6xl md:text-8xl font-black text-primary mb-6 drop-shadow-sm leading-tight pb-2">
           BobaBooth
         </h1>
         

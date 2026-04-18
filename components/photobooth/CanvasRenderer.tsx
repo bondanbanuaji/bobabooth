@@ -19,80 +19,39 @@ export function CanvasRenderer({ images, template }: CanvasRendererProps) {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-     // Setup Layout Constants
-    const IMAGE_WIDTH = 640;
-    const IMAGE_HEIGHT = 480;
-    const PADDING = 40;
-    const HEADER_SPACE = 60;
-    const FOOTER_SPACE = 120;
-    const RADIUS = 24; // Rounded corners for photos
-
-    let canvasWidth = 0;
-    let canvasHeight = 0;
-    
-    // Config per template
-    if (template.layout === 'strip-4') {
-      canvasWidth = IMAGE_WIDTH + (PADDING * 2);
-      canvasHeight = (IMAGE_HEIGHT * 4) + (PADDING * 5) + HEADER_SPACE + FOOTER_SPACE;
-    } else if (template.layout === 'grid-2x2') {
-      canvasWidth = (IMAGE_WIDTH * 2) + (PADDING * 3);
-      canvasHeight = (IMAGE_HEIGHT * 2) + (PADDING * 3) + HEADER_SPACE + FOOTER_SPACE;
-    } else if (template.layout === 'polaroid') {
-       canvasWidth = IMAGE_WIDTH + (PADDING * 2);
-       canvasHeight = IMAGE_HEIGHT + PADDING + FOOTER_SPACE;
-    }
-
+    // Fixed 1200x1800 size for Boothlab overlay templates
+    const canvasWidth = 1200;
+    const canvasHeight = 1800;
     canvas.width = canvasWidth;
     canvas.height = canvasHeight;
 
-    // Wait until fonts are loaded ideally, but we will proceed
-    // Draw Background
-    ctx.fillStyle = template.bgColor;
-    ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+    // Remove solid background fill so it relies purely on the frame
+    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
-    // Draw Text
-    ctx.fillStyle = template.textColor || '#000000';
-    ctx.font = `bold 64px ${template.fontFam || 'sans-serif'}`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    
-    const maxImages = template.layout === 'strip-4' ? 4 : template.layout === 'grid-2x2' ? 4 : 1;
-    
-    // Load Images
-    const loadImages = images.slice(0, maxImages).map(startLoadImage);
+    const maxImages = template.boxes?.length || 4;
+
+    const loadImages = [...images.slice(0, maxImages), template.frameSrc].map(startLoadImage);
 
     Promise.all(loadImages).then((loadedImgs) => {
-      loadedImgs.forEach((img, i) => {
-        let x = 0, y = 0;
+      // The last image is the overlay frame
+      const frameImg = loadedImgs.pop()!;
+      const userPhotos = loadedImgs;
 
-        if (template.layout === 'strip-4') {
-          x = PADDING;
-          y = HEADER_SPACE + PADDING + (i * (IMAGE_HEIGHT + PADDING));
-        } else if (template.layout === 'grid-2x2') {
-          x = (i % 2 === 0) ? PADDING : PADDING * 2 + IMAGE_WIDTH;
-          y = (i < 2) ? HEADER_SPACE + PADDING : HEADER_SPACE + PADDING * 2 + IMAGE_HEIGHT;
-        } else if (template.layout === 'polaroid') {
-            x = PADDING;
-            y = PADDING;
-        }
+      userPhotos.forEach((img, i) => {
+        // Use the explicit bounding box for this photo, fallback for hot reload
+        const boxes = template.boxes || [];
+        const box = boxes[i];
+        if (!box) return;
+        const { x: targetX, y: targetY, w: photoWidth, h: photoHeight } = box;
+        
+        // Add 20px padding to strictly ensure the corners bleed comfortably under the transparent frame edges
+        const x_padded = targetX - 20;
+        const y_padded = targetY - 20;
+        const w_padded = photoWidth + 40;
+        const h_padded = photoHeight + 40;
 
-        // Draw shadow underlay
-        ctx.save();
-        ctx.shadowColor = 'rgba(0,0,0,0.15)';
-        ctx.shadowBlur = 30;
-        ctx.shadowOffsetY = 10;
-        ctx.fillStyle = '#ffffff';
-        ctx.beginPath();
-        if (ctx.roundRect) {
-            ctx.roundRect(x, y, IMAGE_WIDTH, IMAGE_HEIGHT, RADIUS);
-        } else {
-            ctx.rect(x, y, IMAGE_WIDTH, IMAGE_HEIGHT); // fallback
-        }
-        ctx.fill();
-        ctx.restore();
-
-        // Calculate object-fit: cover
-        const canvasRatio = IMAGE_WIDTH / IMAGE_HEIGHT;
+        // Calculate object-fit: cover 
+        const canvasRatio = w_padded / h_padded;
         const imgRatio = img.width / img.height;
         let sx = 0, sy = 0, sWidth = img.width, sHeight = img.height;
         
@@ -104,22 +63,17 @@ export function CanvasRenderer({ images, template }: CanvasRendererProps) {
            sy = (img.height - sHeight) / 2;
         }
 
-        // Draw image with clipping
         ctx.save();
         ctx.beginPath();
-        if (ctx.roundRect) {
-            ctx.roundRect(x, y, IMAGE_WIDTH, IMAGE_HEIGHT, RADIUS);
-        } else {
-            ctx.rect(x, y, IMAGE_WIDTH, IMAGE_HEIGHT);
-        }
+        // Clip to padded dimensions
+        ctx.rect(x_padded, y_padded, w_padded, h_padded);
         ctx.clip();
-        ctx.drawImage(img, sx, sy, sWidth, sHeight, x, y, IMAGE_WIDTH, IMAGE_HEIGHT);
+        ctx.drawImage(img, sx, sy, sWidth, sHeight, x_padded, y_padded, w_padded, h_padded);
         ctx.restore();
       });
 
-      // Draw footer text after images
-      const footerY = canvasHeight - (FOOTER_SPACE / 2);
-      ctx.fillText("BobaBooth", canvasWidth / 2, footerY);
+      // Draw the frame overlay ON TOP of everything
+      ctx.drawImage(frameImg, 0, 0, canvasWidth, canvasHeight);
 
       // Save output
       setDataUrl(canvas.toDataURL('image/png'));
@@ -128,16 +82,22 @@ export function CanvasRenderer({ images, template }: CanvasRendererProps) {
   }, [images, template]);
 
   const startLoadImage = (src: string): Promise<HTMLImageElement> => {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       const img = new Image();
       img.onload = () => resolve(img);
+      img.onerror = () => {
+         console.error("Failed to load image:", src);
+         // Fallback by creating an empty image to not break Promise.all
+         const emptyImg = new Image();
+         resolve(emptyImg);
+      };
       img.src = src;
     });
   };
 
   return (
     <div className="flex flex-col items-center gap-4 w-full h-full max-h-[70vh] overflow-y-auto custom-scrollbar p-4">
-       {/* Visual Canvas (Hidden or scaled down for preview) */}
+       {/* Visual Canvas (Hidden) */}
        <canvas ref={canvasRef} className="hidden" />
        
        {dataUrl ? (
@@ -147,7 +107,7 @@ export function CanvasRenderer({ images, template }: CanvasRendererProps) {
        ) : (
           <div className="w-[320px] sm:w-[400px] h-[600px] flex flex-col items-center justify-center bg-secondary/50 rounded-[2rem] border-4 border-dashed border-primary/20 animate-pulse">
              <span className="loading loading-spinner text-primary loading-lg mb-4"></span>
-             <span className="text-primary font-bold">Processing your masterpiece...</span>
+             <span className="text-primary font-bold">Applying template frame...</span>
           </div>
        )}
     </div>
