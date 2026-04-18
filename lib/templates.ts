@@ -45,7 +45,7 @@ export const defaultTemplates: PhotoboothTemplate[] = [
     layout: "strip-6",
     frameSrc: "/img/template/Free Frame Boothlab 3.png",
     bgColor: "#ffffff",
-    boxes: generateGridBoxes(3, 90, 690, 140, 500, 420, 460)
+    boxes: generateGridBoxes(3, 90, 690, 95, 495, 420, 450)
   },
   {
     id: "boothlab-4",
