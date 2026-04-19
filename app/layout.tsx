@@ -21,12 +21,44 @@ export const metadata: Metadata = {
   verification: {
     google: "PmEGbJJC6OvnZ2rxFdJdsPEGMMdbvWm-daSfYxs3IsI",
   },
+  applicationName: "BobaBooth",
+  appleWebApp: {
+    capable: true,
+    title: "BobaBooth",
+    statusBarStyle: "default",
+  },
   openGraph: {
     type: "website",
     title: "BobaBooth - Premium Browser Photobooth",
-    description: "The ultimate browser-based photobooth experience.",
+    description: "The ultimate browser-based photobooth experience. Capture memories with cute templates.",
     siteName: "BobaBooth",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "BobaBooth Logo",
+      },
+    ],
   },
+  twitter: {
+    card: "summary_large_image",
+    title: "BobaBooth - Premium Browser Photobooth",
+    description: "The ultimate browser-based photobooth experience.",
+    images: ["/twitter-image.png"],
+    creator: "@boba",
+  },
+  icons: {
+    icon: [
+      { url: "/favicon.ico" },
+      { url: "/icon.png", type: "image/png" },
+      { url: "/logo.svg", type: "image/svg+xml" },
+    ],
+    apple: [
+      { url: "/apple-icon.png" },
+    ],
+  },
+  manifest: "/manifest.json",
 };
 
 export default function RootLayout({
