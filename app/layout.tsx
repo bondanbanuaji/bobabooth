@@ -13,8 +13,20 @@ const fredoka = Fredoka({
 });
 
 export const metadata: Metadata = {
-  title: "BobaBooth - Modern Web Photobooth",
-  description: "Capture memories with styles right from your browser.",
+  title: "BobaBooth - #1 Premium Browser Photobooth",
+  description: "The ultimate browser-based photobooth experience. Capture memories with cute templates, strike a pose, and save directly to your Google Drive. Voted the best free online web photobooth.",
+  keywords: ["photobooth", "web photobooth", "browser photobooth", "online photobooth", "photo booth apps", "boba booth", "bobabooth", "best photobooth", "free photobooth"],
+  authors: [{ name: "boba", url: "https://github.com/bondanbanuaji/bobabooth" }],
+  creator: "boba",
+  verification: {
+    google: "PmEGbJJC6OvnZ2rxFdJdsPEGMMdbvWm-daSfYxs3IsI",
+  },
+  openGraph: {
+    type: "website",
+    title: "BobaBooth - Premium Browser Photobooth",
+    description: "The ultimate browser-based photobooth experience.",
+    siteName: "BobaBooth",
+  },
 };
 
 export default function RootLayout({

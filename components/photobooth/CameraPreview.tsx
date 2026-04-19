@@ -162,16 +162,16 @@ export function CameraPreview({ onCapture, isActive }: CameraPreviewProps) {
              <div className="bg-secondary/40 p-4 sm:p-5 rounded-2xl border border-border mt-2">
                 <p className="font-bold text-lg mb-3 flex items-center gap-2">🤖 For Android:</p>
                 <div className="space-y-3">
-                   <p className="font-medium"><strong>Opsi 1 (Android 14+):</strong><br/>Colok USB, cek notifikasi, pilih opsi <span className="font-bold text-primary">"Webcam"</span>. Kalau nggak ada, pakai Opsi 2.</p>
-                   <p className="font-medium"><strong>Opsi 2 (Semua Android):</strong><br/>
+                   <p className="font-medium"><strong>Option 1 (Android 14+):</strong><br/>Plug in USB, check your notification panel, and select the <span className="font-bold text-primary">&quot;Webcam&quot;</span> option. If unavailable, use Option 2.</p>
+                   <p className="font-medium"><strong>Option 2 (All Android):</strong><br/>
                       <ol className="list-decimal ml-6 space-y-1 marker:text-primary">
-                         <li>Install <a href="https://iriun.com/" target="_blank" className="font-bold text-blue-500 underline">Iriun Webcam</a> atau <span className="font-bold text-primary">DroidCam</span> di HP & PC kamu.</li>
-                         <li>Buka aplikasinya di HP dan PC secara bersamaan (bisa via USB/WiFi).</li>
-                         <li>Nanti kamera HP kamu otomatis muncul di PC.</li>
+                         <li>Install <a href="https://iriun.com/" target="_blank" className="font-bold text-blue-500 underline">Iriun Webcam</a> or <span className="font-bold text-primary">DroidCam</span> on both your phone and PC.</li>
+                         <li>Open the app on both devices simultaneously (via USB or WiFi).</li>
+                         <li>Your phone camera will automatically appear as a webcam on your PC.</li>
                       </ol>
                    </p>
                 </div>
-                <p className="mt-3 text-sm italic opacity-80">*Pilih nama kamera (misal: Iriun/Droidcam) dari menu dropdown kamera web ini.</p>
+                <p className="mt-3 text-sm italic opacity-80">*Select your phone camera name (e.g. Iriun/Droidcam) from the camera dropdown above.</p>
              </div>
              
              <div className="bg-secondary/40 p-4 sm:p-5 rounded-2xl border border-border">
